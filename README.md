@@ -232,3 +232,53 @@ The docker image is based on the official SonarQube Image, *sonarqube:7.7-commun
 ## Final Notes
 Enjoy and provide feedback / contribute :)
 
+
+### Workaround for xml plugin and mule plugin
+
+Copy all files to the *.mule extension to avoid
+
+```xml
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>copy-file</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<target>
+										<echo>Prepare for sonar.</echo>
+										<copy
+											todir="${project.basedir}/src/main/test-sonar/"
+											failonerror="false"
+											overwrite="true">
+											<fileset dir="${project.basedir}/src/main/app/">
+												<include name="**/*.xml" />
+											</fileset>
+											<mapper
+												type="glob"
+												from="*"
+												to="*.mule" />
+										</copy>
+										<copy
+											todir="${project.basedir}/src/main/test-sonar/"
+											failonerror="false"
+											overwrite="true">
+											<fileset dir="${project.basedir}/src/main/mule/">
+												<include name="**/*.xml" />
+											</fileset>
+											<mapper
+												type="glob"
+												from="*"
+												to="*.mule" />
+										</copy>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+```
+(remember to clean your file system via git clean or use another sonar.sources folder

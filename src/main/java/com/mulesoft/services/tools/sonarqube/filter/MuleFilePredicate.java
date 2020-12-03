@@ -14,7 +14,7 @@ public class MuleFilePredicate implements FilePredicate {
 	private final Logger logger = Loggers.get(MuleFilePredicate.class);
 	SAXBuilder saxBuilder = new SAXBuilder();
 	String muleNamespace = "http://www.mulesoft.org/schema/mule/core";
-	String fileExtension = ".xml";
+	String fileExtension = ".mule";
 
 	@Override
 	public boolean apply(InputFile inputFile) {
@@ -27,10 +27,19 @@ public class MuleFilePredicate implements FilePredicate {
 				Document document = saxBuilder.build(inputFile.inputStream());
 
 				String namespace = document.getRootElement().getNamespaceURI();
-				if (muleNamespace.equals(namespace))
+				if (muleNamespace.equals(namespace)) {
 					return true;
+				} else {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Mule Sensor on file muleNamespace ("+muleNamespace+") does not match:" + inputFile.filename());
+					}
+				}
 			} catch (JDOMException | IOException e) {
 				logger.error("Parsing document:" + inputFile.filename(), e);
+			}
+		} else {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Mule Sensor on file fileExtension ("+fileExtension+") does not match:" + inputFile.filename());
 			}
 		}
 		return false;
